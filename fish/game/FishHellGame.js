@@ -19,12 +19,10 @@ import {
   TURRET_ENEMY_TYPES,
   rollTurretSpawn,
   resolveTurretHoldPosition,
-  maxTurretsPerWave,
 } from '../config/turretEnemies.js';
 import {
   OBSTACLE_TYPES,
   rollObstacleSpawn,
-  maxObstaclesPerWave,
 } from '../config/obstacleEnemies.js';
 import {
   CLAM_CARRIER,
@@ -1109,12 +1107,7 @@ export class FishHellGame {
       x = -m;
       y = Math.random() * H;
     }
-    const cap = maxTurretsPerWave(state.wave);
-    if (
-      cap > 0 &&
-      state.turretsSpawnedThisWave < cap &&
-      rollTurretSpawn(state.wave)
-    ) {
+    if (rollTurretSpawn(state.wave)) {
       const def = TURRET_ENEMY_TYPES[Math.floor(Math.random() * TURRET_ENEMY_TYPES.length)];
       const slot = state.turretsSpawnedThisWave;
       state.turretsSpawnedThisWave++;
@@ -1122,12 +1115,7 @@ export class FishHellGame {
       return;
     }
 
-    const ocap = maxObstaclesPerWave(state.wave);
-    if (
-      ocap > 0 &&
-      state.obstaclesSpawnedThisWave < ocap &&
-      rollObstacleSpawn(state.wave)
-    ) {
+    if (rollObstacleSpawn(state.wave)) {
       const def = OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)];
       const edgePad = playerCfg.edgePadding * u * 1.25;
       state.obstaclesSpawnedThisWave++;
