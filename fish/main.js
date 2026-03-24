@@ -17,48 +17,89 @@ import { loadGameAssets, getWeaponTexture, getArmuzzleTexture } from './game/ass
 import { AudioManager } from './game/AudioManager.js';
 import { AUDIO_CLIPS } from './config/audio.js';
 
-const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gc'));
-const wrap = /** @type {HTMLElement} */ (document.getElementById('game-wrap'));
+ /** @type {HTMLCanvasElement} */
+const canvas = document.getElementById('gc');
+
+/** @type {HTMLDivElement} */
+const wrap = document.getElementById('game-wrap');
+
+/** @type {HTMLElement} */
 const bootLoader = document.getElementById('boot-loader');
 
+/** @type {AudioManager} */
 const audio = new AudioManager();
+
+/** @type {InputManager} */
 const inputManager = new InputManager({ audio });
+
 inputManager.load();
 display.fullscreen = inputManager.fullscreen;
+
+/** @type {ReturnType<typeof applyDisplay>} */
 const displayCtl = applyDisplay(canvas, wrap, display);
+
+/** @type {CanvasRenderingContext2D} */
 const ctx = canvas.getContext('2d');
 
+/**
+ * Relayout the display.
+ * @returns {void} 
+ */
 function relayoutDisplay() {
   display.fullscreen = inputManager.fullscreen;
   displayCtl.relayout();
 }
 
+/** @type {ReturnType<typeof createInput>} */
 const input = createInput(canvas, {
   getPreventDefaultKeys: () => inputManager.getPreventDefaultKeysList(),
 });
 
+/**
+ * Set the play HUD visible.
+ * @param {boolean} visible
+ * @returns {void}
+ */
 function setPlayHudVisible(visible) {
-  const hud = document.getElementById('hud');
+  const hud  = document.getElementById('hud');
   const wave = document.getElementById('wave-msg');
   const disp = visible ? 'block' : 'none';
-  if (hud) hud.style.display = disp;
+  if (hud) {
+    hud.style.display = disp;
+  }
   if (wave) {
     wave.style.display = disp;
-    if (!visible) wave.style.opacity = '0';
+    if (!visible) {
+      wave.style.opacity = '0';
+    }
   }
 }
 
+/** @type {HTMLElement} */
 const elFps = document.getElementById('h-fps');
-if (elFps) elFps.textContent = `FPS: — · sim ${SIM_HZ}Hz`;
+if (elFps) {
+  elFps.textContent = `FPS: — · sim ${SIM_HZ}Hz`;
+}
 
+/** @type {number} */
 let _fpsFrames = 0;
+
+/** @type {number} */
 let _fpsT0 = performance.now();
 
+/**
+ * Sync the FPS overlay.
+ * @returns {void}
+ */
 function syncFpsOverlay() {
   if (!elFps) return;
   elFps.style.display = inputManager.showFps ? 'block' : 'none';
 }
 
+/**
+ * Tick the FPS meter.
+ * @returns {void}
+ */
 function tickFpsMeter() {
   if (!elFps || !inputManager.showFps) return;
   _fpsFrames++;
@@ -71,8 +112,12 @@ function tickFpsMeter() {
   _fpsT0 = t;
 }
 
+/** @type {Record<string, unknown>} */
 const deps = { canvas, wrap, input, inputManager, setPlayHudVisible, audio, relayoutDisplay };
+
+/** @type {SceneManager} */
 const scenes = new SceneManager(deps);
+
 scenes.register('splash', SplashScene);
 scenes.register('menu', MenuScene);
 scenes.register('glossary', GlossaryScene);
@@ -82,6 +127,7 @@ scenes.register('play', PlayScene);
 scenes.register('gameOver', GameOverScene);
 scenes.register('credits', CreditsScene);
 
+/** @type {GameLoop} */
 const loop = new GameLoop({
   update(dt) {
     scenes.update(dt);
@@ -117,10 +163,15 @@ canvas.addEventListener(
 window.addEventListener('blur', () => {
   scenes.onWindowBlur();
 });
+
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') scenes.onWindowBlur();
 });
 
+/**
+ * Load the game assets and audio clips.
+ * @returns {Promise<void>}
+ */
 Promise.all([loadGameAssets(), audio.loadAll(AUDIO_CLIPS)])
   .then(() => {
     if (!getWeaponTexture('ar')) console.warn('fish/assets/weapons/ar.png not loaded; gun uses placeholder.');
