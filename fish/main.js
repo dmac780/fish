@@ -19,6 +19,7 @@ import { AUDIO_CLIPS } from './config/audio.js';
 
 const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gc'));
 const wrap = /** @type {HTMLElement} */ (document.getElementById('game-wrap'));
+const bootLoader = document.getElementById('boot-loader');
 
 const audio = new AudioManager();
 const inputManager = new InputManager({ audio });
@@ -128,4 +129,5 @@ Promise.all([loadGameAssets(), audio.loadAll(AUDIO_CLIPS)])
   .finally(() => {
     scenes.switchTo('splash');
     loop.start();
+    if (bootLoader) bootLoader.remove();
   });
