@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fish with Gun</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: auto;
+  }
+  #game-wrap { position: relative; }
+  #gc {
+    display: block;
+    cursor: crosshair;
+  }
+  #hud {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    color: #fff;
+    font-family: monospace;
+    font-size: 13px;
+    pointer-events: none;
+  }
+  #hud div { margin-bottom: 4px; text-shadow: 0 1px 3px #000; }
+  #h-fps {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: none;
+    color: #fff;
+    font-family: monospace;
+    font-size: 13px;
+    pointer-events: none;
+    text-shadow: 0 1px 3px #000;
+    opacity: 0.9;
+  }
+  #wave-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffe066;
+    font-family: monospace;
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 2px 8px #000;
+    pointer-events: none;
+    opacity: 0;
+  }
+</style>
+</head>
+<body>
+<div id="game-wrap">
+  <!-- Intrinsic size + buffer; fish/main.js applyDisplay() syncs from config -->
+  <canvas id="gc" width="1280" height="720"></canvas>
+  <div id="hud" style="display:none">
+    <div id="h-hp">HP: 100</div>
+    <div id="h-ammo">Ammo: 12/12</div>
+    <div id="h-wave">Wave: 1</div>
+    <div id="h-score">Score: 0</div>
+    <div id="h-reload" style="color:#ff6;display:none">RELOADING...</div>
+  </div>
+  <div id="h-fps">FPS: —</div>
+  <div id="wave-msg" style="display:none">Wave 1!</div>
+</div>
+<script type="module" src="fish/main.js"></script>
+</body>
+</html>
