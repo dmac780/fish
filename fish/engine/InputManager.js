@@ -22,24 +22,32 @@ export class InputManager {
   constructor(opts = {}) {
     /** @type {import('../game/AudioManager.js').AudioManager | null} */
     this._audio = opts.audio ?? null;
+
     /** @type {Record<string, string>} */
     this.bindings = { ...defaultInputBindings };
+
     /** 0 … AUDIO_VOLUME_STEPS (0 = off, STEPS = full) */
     this.sfxStep = this._clampStep(DEFAULT_SFX_VOLUME_STEP);
     this.musicStep = this._clampStep(DEFAULT_MUSIC_VOLUME_STEP);
     this.muted = false;
-    /** Overlay FPS counter (top-right); persisted */
     this.showFps = false;
-    /** Fill viewport with game (`display.fullscreen`); persisted */
     this.fullscreen = false;
   }
 
-  /** @param {import('../game/AudioManager.js').AudioManager | null} a */
+  /**
+   * Set the audio manager.
+   * @param {import('../game/AudioManager.js').AudioManager | null} a
+   * @returns {void}
+   */
   setAudio(a) {
     this._audio = a;
     this.applyAudio();
   }
 
+  /**
+   * Apply the audio settings.
+   * @returns {void}
+   */
   applyAudio() {
     const a = this._audio;
     if (!a) return;
@@ -51,12 +59,20 @@ export class InputManager {
     if (typeof a.refreshGameplayBgmVolume === 'function') a.refreshGameplayBgmVolume();
   }
 
-  /** @param {number} s */
+  /**
+   * Clamp the step.
+   * @param {number} s
+   * @returns {number}
+   */
   _clampStep(s) {
     const n = AUDIO_VOLUME_STEPS;
     return Math.min(n, Math.max(0, Math.round(s)));
   }
 
+  /**
+   * Load the input settings.
+   * @returns {void}
+   */
   load() {
     try {
       const raw = localStorage.getItem(INPUT_SETTINGS_STORAGE_KEY);
@@ -96,6 +112,10 @@ export class InputManager {
     this.applyAudio();
   }
 
+  /**
+   * Save the input settings.
+   * @returns {void}
+   */
   save() {
     try {
       localStorage.setItem(
@@ -115,7 +135,10 @@ export class InputManager {
     }
   }
 
-  /** Keys to pass to `createInput` preventDefault (game focus). */
+  /**
+   * Get the prevent default keys list.
+   * @returns {string[]}
+   */
   getPreventDefaultKeysList() {
     const out = new Set();
     for (const id of INPUT_ACTION_ORDER) {
@@ -126,6 +149,7 @@ export class InputManager {
   }
 
   /**
+   * Check if an action is down.
    * @param {string} action
    * @param {Record<string, boolean>} keys
    */
@@ -135,6 +159,7 @@ export class InputManager {
   }
 
   /**
+   * Check if an action matches a key.
    * @param {string} action
    * @param {KeyboardEvent} e
    */
@@ -146,6 +171,7 @@ export class InputManager {
   }
 
   /**
+   * Set the SFX step.
    * @param {number} step 0…AUDIO_VOLUME_STEPS
    * @param {boolean} [persist=true]
    */
@@ -156,6 +182,7 @@ export class InputManager {
   }
 
   /**
+   * Set the music step.
    * @param {number} step 0…AUDIO_VOLUME_STEPS
    * @param {boolean} [persist=true]
    */
@@ -165,31 +192,54 @@ export class InputManager {
     if (persist) this.save();
   }
 
+  /**
+   * Bump the SFX step.
+   * @param {number} delta
+   * @returns {void}
+   */
   bumpSfx(delta) {
     this.setSfxStep(this.sfxStep + delta);
   }
 
+  /**
+   * Bump the music step.
+   * @param {number} delta
+   * @returns {void}
+   */
   bumpMusic(delta) {
     this.setMusicStep(this.musicStep + delta);
   }
 
+  /**
+   * Toggle the muted state.
+   * @returns {void}
+   */
   toggleMuted() {
     this.muted = !this.muted;
     this.applyAudio();
     this.save();
   }
 
+  /**
+   * Toggle the FPS display.
+   * @returns {void}
+   */
   toggleShowFps() {
     this.showFps = !this.showFps;
     this.save();
   }
 
+  /**
+   * Toggle the fullscreen state.
+   * @returns {void}
+   */
   toggleFullscreen() {
     this.fullscreen = !this.fullscreen;
     this.save();
   }
 
   /**
+   * Set a binding.
    * @param {string} action
    * @param {string} key normalized storage key
    */
@@ -206,6 +256,10 @@ export class InputManager {
     this.save();
   }
 
+  /**
+   * Reset the bindings to default.
+   * @returns {void}
+   */
   resetBindingsToDefault() {
     this.bindings = { ...defaultInputBindings };
     this.save();
