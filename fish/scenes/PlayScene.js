@@ -9,6 +9,7 @@ import {
 import { drawPauseMenu, computePauseMenuLayout, pauseMenuHitTest } from './drawPauseMenu.js';
 import { playUiClick, playUiSecondaryClick } from './uiClickSound.js';
 import { formatRunTime } from '../game/formatRunTime.js';
+import { drawCrosshair } from '../game/render.js';
 
 export class PlayScene {
   /**
@@ -102,6 +103,7 @@ export class PlayScene {
   }
 
   exit() {
+    this.manager.showCursor();
     this.game = null;
     this.paused = false;
     this._pauseConfirmMenu = false;
@@ -187,6 +189,16 @@ export class PlayScene {
   render(ctx) {
     if (!this.game) return;
     this.game.render(ctx);
+    
+    const shouldShowCrosshair = !this.paused && this._victoryFadeT == null && this._introFadeT === 0;
+    if (shouldShowCrosshair) {
+      this.manager.hideCursor();
+      const input = /** @type {{ mouse: { x: number, y: number } }} */ (this.deps.input);
+      drawCrosshair(ctx, input.mouse.x, input.mouse.y);
+    } else {
+      this.manager.showCursor();
+    }
+    
     if (this._introFadeT > 0) {
       const { width: W, height: H } = ctx.canvas;
       const d = MENU_SCENE_TRANSITION_SEC;

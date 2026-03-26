@@ -8,6 +8,8 @@ export class SceneManager {
     this._registry = new Map();
     /** @type {any} */
     this.current = null;
+    /** @type {HTMLCanvasElement} */
+    this._canvas = /** @type {HTMLCanvasElement} */ (deps.canvas);
   }
 
   /**
@@ -28,6 +30,16 @@ export class SceneManager {
     if (!SceneClass) throw new Error(`Unknown scene: ${name}`);
     this.current = new SceneClass(this, this.deps);
     this.current.enter?.(data);
+  }
+
+  /** Hide the canvas cursor (for custom cursor rendering) */
+  hideCursor() {
+    this._canvas.style.cursor = 'none';
+  }
+
+  /** Show the canvas cursor (default cursor) */
+  showCursor() {
+    this._canvas.style.cursor = 'default';
   }
 
   /** @param {number} dt */

@@ -11,6 +11,7 @@ import {
   getEnemySpriteTexture,
   getVfxTexture,
   getItemTexture,
+  getCrosshairTexture,
 } from './assets.js';
 import { BOSS_DEATH_EXPLOSION } from '../config/vfx.js';
 import { gunMirrorYForAim } from './weaponMath.js';
@@ -1029,4 +1030,18 @@ export function renderWorld(ctx, state, ui = {}) {
     ctx.restore();
   }
   ctx.restore();
+}
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} mouseX
+ * @param {number} mouseY
+ */
+export function drawCrosshair(ctx, mouseX, mouseY) {
+  const crosshairImg = getCrosshairTexture();
+  if (!crosshairImg || !crosshairImg.complete || crosshairImg.naturalWidth === 0) return;
+  const scale = 0.25;
+  const w = crosshairImg.naturalWidth * scale;
+  const h = crosshairImg.naturalHeight * scale;
+  ctx.drawImage(crosshairImg, mouseX - w / 2, mouseY - h / 2, w, h);
 }

@@ -9,6 +9,7 @@ const textures = {
   fish_b: null,
   fish_c: null,
   oceanBg: null,
+  crosshair: null,
 };
 
 /** Keys match `EnemyTypeDef.spriteKey` in `config/enemies.js` */
@@ -87,6 +88,11 @@ export function getItemTexture(key) {
   return itemTextures[key] ?? null;
 }
 
+/** @returns {HTMLImageElement | null} */
+export function getCrosshairTexture() {
+  return textures.crosshair;
+}
+
 function loadImage(url) {
   return new Promise((/** @type {(v: HTMLImageElement | null) => void} */ resolve) => {
     const img = new Image();
@@ -106,6 +112,7 @@ export function loadGameAssets() {
   const fishB = new URL('../assets/fish/b.png', import.meta.url).href;
   const fishC = new URL('../assets/fish/c.png', import.meta.url).href;
   const oceanUrl = new URL('../assets/bg/ocean1.png', import.meta.url).href;
+  const crosshairUrl = new URL('../assets/misc/crosshair.png', import.meta.url).href;
   const shrimp1Url = new URL('../assets/fish/shrimp1.png', import.meta.url).href;
   const crab1Url = new URL('../assets/fish/crab1.png', import.meta.url).href;
   const crab2Url = new URL('../assets/fish/crab2.png', import.meta.url).href;
@@ -136,6 +143,7 @@ export function loadGameAssets() {
     loadImage(fishB),
     loadImage(fishC),
     loadImage(oceanUrl),
+    loadImage(crosshairUrl),
     loadImage(shrimp1Url),
     loadImage(crab1Url),
     loadImage(crab2Url),
@@ -156,7 +164,7 @@ export function loadGameAssets() {
     loadImage(narutomakiItemUrl),
     loadImage(hotsauceItemUrl),
     loadImage(luckyNekoItemUrl),
-  ]).then(([arImg, shottyImg, revolverImg, pickupRevolverImg, muzzleImg, aImg, bImg, cImg, oceanImg, shrimp1Img, crab1Img, crab2Img, cray1Img, jelly1Img, clamImg, fakeFishImg, octo1Img, coneSnailImg, mechocto1Img, kingBootImg, godNephropidaeImg, longEelImg, fishingHookImg, coralImg, starfishImg, dmacExplosion1Img, narutomakiItemImg, hotsauceItemImg, luckyNekoItemImg]) => {
+  ]).then(([arImg, shottyImg, revolverImg, pickupRevolverImg, muzzleImg, aImg, bImg, cImg, oceanImg, crosshairImg, shrimp1Img, crab1Img, crab2Img, cray1Img, jelly1Img, clamImg, fakeFishImg, octo1Img, coneSnailImg, mechocto1Img, kingBootImg, godNephropidaeImg, longEelImg, fishingHookImg, coralImg, starfishImg, dmacExplosion1Img, narutomakiItemImg, hotsauceItemImg, luckyNekoItemImg]) => {
     textures.ar = arImg;
     textures.shotty = shottyImg;
     textures.revolver = revolverImg;
@@ -166,6 +174,7 @@ export function loadGameAssets() {
     textures.fish_b = bImg;
     textures.fish_c = cImg;
     textures.oceanBg = oceanImg;
+    textures.crosshair = crosshairImg;
     enemySprites.shrimp1 = shrimp1Img;
     enemySprites.crab1 = crab1Img;
     enemySprites.crab2 = crab2Img;
