@@ -41,7 +41,12 @@ function hexToRgb(hex) {
   };
 }
 
-/** @param {{ r: number, g: number, b: number }} c */
+/** 
+ * Convert a color `c` to an RGBA string with an optional alpha `a`.
+ * @param {{ r: number, g: number, b: number }} c
+ * @param {number} a
+ * @returns {string}
+ */
 function rgbStr(c, a = 1) {
   return `rgba(${c.r},${c.g},${c.b},${a})`;
 }
@@ -78,6 +83,23 @@ function exitBorderFlashOn(t, duration) {
 /** Sun ray fan: radians per second (slow ambient drift, no click boost). */
 const SUN_RAY_SPIN_RATE = 0.038;
 
+/** 
+ * Blend a color `c` towards a target color `target` by a factor `mix` and a scale `scale`.
+ * @param {{ r: number, g: number, b: number }} c
+ * @param {{ r: number, g: number, b: number }} target
+ * @param {number} mix
+ * @param {number} scale
+ * @returns {{ r: number, g: number, b: number }}
+ */
+function blendColor(c, target, mix, scale) {
+  if (!c) return null;
+  return {
+    r: target.r - (target.r - c.r) * mix * scale,
+    g: target.g - (target.g - c.g) * mix * scale,
+    b: target.b - (target.b - c.b) * mix * scale,
+  };
+}
+
 /**
  * Anime sky + kyokujitsu-style sun + rotating rainbow spiral (conic + particle spiral).
  * @param {CanvasRenderingContext2D} ctx
@@ -92,20 +114,59 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
   const ac = hoverCharacter ? hexToRgb(hoverCharacter.accent) : null;
   const mix = ac ? 0.42 : 0;
   const flashBoost = sunFlashOn ? 1 : 0;
+  const sunFlash = 'rgba(255, 255, 255, 0.14)';
+
+  const pinkLace = '#ffd6f0';
+  const pinkLaceRgb = hexToRgb(pinkLace);
+  const pinkBlendScale = 0.35;
+  const pinkOffset = 0;
+
+  const seashellPeach = '#fff5f0';
+  const seashellPeachRgb = hexToRgb(seashellPeach);
+
+  const sundownPink = '#FFB3B8';
+  const sundownPinkRgb = hexToRgb(sundownPink);
+
+  const paleRose = '#ffe8f8';
+  const roseOffset = 0.35;
+
+  const peachCream = '#fff0dc';
+  const peachOffset = 0.55;
+
+  const oasis = '#fde4c8';
+  const oasisOffset = 0.85;
+
+  const blueChalk = '#f5d0ff';
+  const blueChalkRgb = hexToRgb(blueChalk);
+  const blueBlendScale = 0.4;
+  const blueOffset = 1;
+
+  const wildWatermelon = '#ff6b7a';
+  const radicalRed = '#ff3355';
+  const amaranth = '#e11d48';
+  const coralRed = '#ff3b4a';
+  const shiraz = '#be123c';
+
+  const coreOffset = 0;
+  const midOffset = 0.65;
+  const edgeOffset = 1;
 
   const sky = ctx.createLinearGradient(0, 0, W, H);
-  const c0 = ac ? { r: 255 - (255 - ac.r) * mix * 0.35, g: 214 - (214 - ac.g) * mix * 0.35, b: 240 - (240 - ac.b) * mix * 0.35 } : null;
-  sky.addColorStop(0, c0 ? rgbStr(c0) : '#ffd6f0');
-  sky.addColorStop(0.35, '#ffe8f8');
-  sky.addColorStop(0.55, '#fff0dc');
-  sky.addColorStop(0.85, '#fde4c8');
-  const c1 = ac ? { r: 245 - (245 - ac.r) * mix * 0.4, g: 208 - (208 - ac.g) * mix * 0.4, b: 255 - (255 - ac.b) * mix * 0.4 } : null;
-  sky.addColorStop(1, c1 ? rgbStr(c1) : '#f5d0ff');
+  const c0 = ac ? blendColor(ac, pinkLaceRgb, mix, pinkBlendScale) : null;
+  const c0Str = c0 ? rgbStr(c0) : pinkLace;
+  sky.addColorStop(pinkOffset, c0Str);
+  sky.addColorStop(roseOffset , paleRose);
+  sky.addColorStop(peachOffset, peachCream);
+  sky.addColorStop(oasisOffset, oasis);
+
+  const c1 = ac ? blendColor(ac, blueChalkRgb, mix, blueBlendScale) : null;
+  const c1Str = c1 ? rgbStr(c1) : blueChalk;
+  sky.addColorStop(blueOffset, c1Str);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
   if (sunFlashOn) {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.fillStyle = sunFlash;
     ctx.fillRect(0, 0, W, H);
   }
 
@@ -114,13 +175,25 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
   const rayLen = Math.max(W, H) * 1.35;
   const rays = 32;
   const wedge = (Math.PI * 2) / rays;
+  const boostRed = 40;
+  const boostGreen = 50;
+  const boostBlue = 35;
 
-  let rayA = ac ? hexToRgb(hoverCharacter.accent) : { r: 255, g: 179, b: 184 };
+  let rayA = ac 
+    ? hexToRgb(hoverCharacter.accent) 
+    : sundownPinkRgb;
+  
   let rayB = ac
-    ? { r: Math.min(255, rayA.r + 40), g: Math.min(255, rayA.g + 50), b: Math.min(255, rayA.b + 35) }
-    : { r: 255, g: 245, b: 240 };
+    ? { 
+        r: Math.min(255, rayA.r + boostRed),  
+        g: Math.min(255, rayA.g + boostGreen), 
+        b: Math.min(255, rayA.b + boostBlue),
+      }
+    : seashellPeachRgb;
+
   if (sunFlashOn) {
-    const lift = (v) => Math.min(255, Math.round(v + (255 - v) * 0.42));
+    const liftScale = 0.42;
+    const lift = (v) => Math.min(255, Math.round(v + (255 - v) * liftScale));
     rayA = { r: lift(rayA.r), g: lift(rayA.g), b: lift(rayA.b) };
     rayB = { r: lift(rayB.r), g: lift(rayB.g), b: lift(rayB.b) };
   }
@@ -131,10 +204,20 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
   for (let r = 0; r < rays; r++) {
     ctx.rotate(wedge);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = r % 2 === 0 ? rgbStr(rayB, 0.88 + flashBoost * 0.1) : rgbStr(rayA, 0.82 + flashBoost * 0.12);
+
+    const baseAlphaEven = 0.88;
+    const baseAlphaOdd = 0.82;
+    const flashMultEven = 0.1;
+    const flashMultOdd = 0.12;
+
+    ctx.fillStyle = r % 2 === 0 
+      ? rgbStr(rayB, baseAlphaEven + flashBoost * flashMultEven) 
+      : rgbStr(rayA, baseAlphaOdd + flashBoost * flashMultOdd);
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.arc(0, 0, rayLen, -wedge * 0.48, wedge * 0.48);
+
+    const arcAngle = wedge * 0.48;
+    ctx.arc(0, 0, rayLen, -arcAngle, arcAngle);
     ctx.closePath();
     ctx.fill();
   }
@@ -142,6 +225,7 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
 
   const sunDiskR = Math.min(W, H) * 0.52;
   ctx.save();
+
   const diskBase = ac
     ? {
         r: Math.min(255, 255 - (255 - ac.r) * 0.25),
@@ -149,6 +233,7 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
         b: Math.min(255, 242 - (242 - ac.b) * 0.2),
       }
     : { r: 255, g: 248, b: 242 };
+
   const diskLit = sunFlashOn
     ? {
         r: Math.min(255, diskBase.r + 28),
@@ -156,10 +241,13 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
         b: Math.min(255, diskBase.b + 22),
       }
     : diskBase;
+
   ctx.fillStyle = rgbStr(diskLit, 0.97);
   ctx.globalAlpha = 0.97 + flashBoost * 0.02;
   ctx.beginPath();
-  ctx.arc(sunX, sunY, sunDiskR * 1.02, Math.PI, 0);
+
+  const diskRadius = sunDiskR * 1.02;
+  ctx.arc(sunX, sunY, diskRadius, Math.PI, 0);
   ctx.closePath();
   ctx.fill();
   ctx.restore();
@@ -185,18 +273,18 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
       g: Math.max(0, ac.g * 0.5 + fk * 0.35),
       b: Math.max(0, ac.b * 0.55 + fk * 0.35),
     };
-    maruGrad.addColorStop(0, rgbStr(core));
-    maruGrad.addColorStop(0.65, rgbStr(mid));
-    maruGrad.addColorStop(1, rgbStr(edge));
+    maruGrad.addColorStop(coreOffset, rgbStr(core));
+    maruGrad.addColorStop(midOffset, rgbStr(mid));
+    maruGrad.addColorStop(edgeOffset, rgbStr(edge));
   } else {
     if (sunFlashOn) {
-      maruGrad.addColorStop(0, '#ff6b7a');
-      maruGrad.addColorStop(0.65, '#ff3355');
-      maruGrad.addColorStop(1, '#e11d48');
+      maruGrad.addColorStop(coreOffset, wildWatermelon);
+      maruGrad.addColorStop(midOffset, radicalRed);
+      maruGrad.addColorStop(edgeOffset, amaranth);
     } else {
-      maruGrad.addColorStop(0, '#ff3b4a');
-      maruGrad.addColorStop(0.65, '#e11d48');
-      maruGrad.addColorStop(1, '#be123c');
+      maruGrad.addColorStop(coreOffset, coralRed);
+      maruGrad.addColorStop(midOffset, amaranth);
+      maruGrad.addColorStop(edgeOffset, shiraz);
     }
   }
   ctx.fillStyle = maruGrad;
@@ -225,7 +313,11 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
     ctx.fillRect(0, 0, W, H);
     ctx.restore();
 
-    const cone2 = ctx.createConicGradient(W * 0.42, H * 0.32, -rot * 1.2 + 1.2);
+    const spiralC2X = W * 0.42;
+    const spiralC2Y = H * 0.32;
+    const cone2Rot = -rot * 1.2 + 1.2;
+
+    const cone2 = ctx.createConicGradient(spiralC2X, spiralC2Y, cone2Rot);
     for (let s = 0; s <= stops; s++) {
       const t = s / stops;
       const h = ac ? (hue0 + 40 + t * 220) % 360 : t * 360 + 40;
@@ -236,7 +328,9 @@ export function drawCharacterSelectBackground(ctx, W, H, u, time, hoverCharacter
     ctx.globalCompositeOperation = 'overlay';
     ctx.fillStyle = cone2;
     ctx.beginPath();
-    ctx.arc(spiralCx, spiralCy, Math.max(W, H) * 0.75, 0, Math.PI * 2);
+
+    const spiralRadius = Math.max(W, H) * 0.75;
+    ctx.arc(spiralCx, spiralCy, spiralRadius, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
