@@ -4,17 +4,17 @@ import { MENU_SCENE_TRANSITION_SEC } from '../config/scenes.js';
 import { MENU_BGM_CLIP_ID } from '../config/audio.js';
 import { playUiClick, playUiHover } from './uiClickSound.js';
 
-/** Border flash beats before black scene transition (matches character select). */
 const MENU_ACTIVATE_FLASH_SEC = 0.36;
 
 export class MenuScene {
   /**
-   * @param {import('./SceneManager.js').SceneManager} manager
-   * @param {Record<string, unknown>} deps
+   * @param {import('./SceneManager.js').SceneManager} manager - The scene manager
+   * @param {Record<string, unknown>} deps - The dependencies for the menu scene
    */
   constructor(manager, deps) {
     this.manager = manager;
     this.deps = deps;
+    /** @type {number} */
     this.selected = 0;
     /** @type {number} */
     this._bgTime = 0;
@@ -29,23 +29,28 @@ export class MenuScene {
   }
 
   /**
-   * @param {{ skipMenuEnterFade?: boolean } | undefined} data
+   * @param {{ skipMenuEnterFade?: boolean } | undefined} data - The data for the menu scene
    */
   enter(data) {
-    /** @type {(v: boolean) => void} */ (this.deps.setPlayHudVisible)(false);
+    this.deps.setPlayHudVisible(false);
     this.selected = 0;
     this._bgTime = 0;
-    this._enterFadeT =
-      data?.skipMenuEnterFade === true ? MENU_SCENE_TRANSITION_SEC : 0;
+    this._enterFadeT = data?.skipMenuEnterFade === true 
+      ? MENU_SCENE_TRANSITION_SEC 
+      : 0;
     this._leave = null;
     this._activateFlash = null;
     this._lastMainMenuPointerHit = -1;
+
     /** @type {import('../game/AudioManager.js').AudioManager | null | undefined} */
-    const au = /** @type {any} */ (this.deps.audio);
+    const au = this.deps.audio;
+
     au?.startMenuBgm?.(MENU_BGM_CLIP_ID);
   }
 
-  /** @param {number} dt */
+  /** 
+   * @param {number} dt - The delta time
+   */
   update(dt) {
     this._bgTime += dt;
     if (this._leave) {
@@ -66,8 +71,12 @@ export class MenuScene {
       }
       return;
     }
-    const canvas = /** @type {HTMLCanvasElement} */ (this.deps.canvas);
-    const input = /** @type {{ mouse: { x: number, y: number } }} */ (this.deps.input);
+    /** @type {HTMLCanvasElement} */
+    const canvas = this.deps.canvas;
+    
+    /** @type {{ mouse: { x: number, y: number } }} */
+    const input = this.deps.input;
+
     const hit = mainMenuHitTest(canvas, input.mouse.x, input.mouse.y);
     if (hit >= 0) {
       if (hit !== this._lastMainMenuPointerHit) {
@@ -81,11 +90,18 @@ export class MenuScene {
     if (this._enterFadeT < MENU_SCENE_TRANSITION_SEC) this._enterFadeT += dt;
   }
 
-  /** @param {CanvasRenderingContext2D} ctx */
+  /**
+   * @param {CanvasRenderingContext2D} ctx - The canvas context
+   */
   render(ctx) {
+    /** @type {number} */
     let highlightIndex = this.selected;
-    if (this._activateFlash) highlightIndex = this._activateFlash.index;
-    else if (this._leave) highlightIndex = this._leave.index;
+
+    if (this._activateFlash) {
+      highlightIndex = this._activateFlash.index;
+    } else if (this._leave) {
+      highlightIndex = this._leave.index;
+    }
 
     /** @type {null | { index: number, t: number, duration: number }} */
     let activateFlash = null;
@@ -104,10 +120,16 @@ export class MenuScene {
     drawMenuSceneTransitionOverlay(ctx, this._enterFadeT, this._leave?.t ?? 0);
   }
 
+  /**
+   * @returns {boolean} Whether the menu is busy
+   */
   _busy() {
     return !!(this._leave || this._activateFlash);
   }
 
+  /**
+   * @param {number} i - The index of the option to activate
+   */
   _activateOption(i) {
     if (this._busy()) return;
     const name = i === 0 ? 'charSelect' : i === 1 ? 'glossary' : i === 2 ? 'settings' : null;
@@ -117,7 +139,9 @@ export class MenuScene {
     }
   }
 
-  /** @param {KeyboardEvent} e */
+  /** 
+   * @param {KeyboardEvent} e - The keyboard down event
+   */
   onKeyDown(e) {
     if (this._busy()) return;
     if (e.repeat) return;
@@ -150,12 +174,19 @@ export class MenuScene {
     }
   }
 
-  /** @param {MouseEvent} e */
+  /** 
+   * @param {MouseEvent} e - The mouse down event
+   */
   onMouseDown(e) {
     if (this._busy()) return;
     if (e.button !== 0) return;
-    const canvas = /** @type {HTMLCanvasElement} */ (this.deps.canvas);
-    const input = /** @type {{ mouse: { x: number, y: number } }} */ (this.deps.input);
+
+    /** @type {HTMLCanvasElement} */
+    const canvas = this.deps.canvas;
+
+    /** @type {{ mouse: { x: number, y: number } }} */
+    const input = this.deps.input;
+
     const hit = mainMenuHitTest(canvas, input.mouse.x, input.mouse.y);
     if (hit >= 0) {
       this.selected = hit;

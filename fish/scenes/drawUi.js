@@ -1,4 +1,3 @@
-import { drawWater } from '../game/render.js';
 import { unitScale } from '../config/units.js';
 import { drawCharacterSelectBackground } from './drawCharacterSelect.js';
 
@@ -13,8 +12,9 @@ export const MAIN_MENU_ENTRIES = [
 
 /**
  * Three sharp border “on” beats (same cadence as character-select confirm).
- * @param {number} t
- * @param {number} duration
+ * @param {number} t seconds
+ * @param {number} duration seconds
+ * @returns {boolean}
  */
 function mainMenuBorderFlashOn(t, duration) {
   if (duration <= 0 || t >= duration) return false;

@@ -73,11 +73,11 @@ function bufferSize(ctx) {
   return { W: c.width, H: c.height };
 }
 
-export function drawWater(ctx) {
+/*export function drawWater(ctx) {
   const { W, H } = bufferSize(ctx);
   ctx.fillStyle = '#1a2a3a';
   ctx.fillRect(0, 0, W, H);
-}
+}*/
 
 /**
  * Warm desaturated “bullet time” look on the bg only (CSS filter on 2D canvas).

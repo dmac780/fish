@@ -6,7 +6,11 @@ import {
   MENU_BGM_FADE_OUT_SEC,
   VICTORY_TO_CREDITS_FADE_SEC,
 } from '../config/scenes.js';
-import { drawPauseMenu, computePauseMenuLayout, pauseMenuHitTest } from './drawPauseMenu.js';
+import { 
+  drawPauseMenu, 
+  computePauseMenuLayout, 
+  pauseMenuHitTest 
+} from './drawPauseMenu.js';
 import { playUiClick, playUiSecondaryClick } from './uiClickSound.js';
 import { formatRunTime } from '../game/formatRunTime.js';
 import { drawCrosshair } from '../game/render.js';
