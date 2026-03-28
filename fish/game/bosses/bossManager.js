@@ -2,13 +2,12 @@ import { getBossDefForWave } from '../../config/bosses.js';
 import { unitScale } from '../../config/units.js';
 import { createOctoroboRuntime, updateOctorobo } from './octorobo.js';
 import { createKingBootRuntime, updateKingBoot } from './kingBoot.js';
-import {
-  createGodNephropidaeRuntime,
-  updateGodNephropidae,
-} from './godNephropidae.js';
+import { createGodNephropidaeRuntime, updateGodNephropidae } from './godNephropidae.js';
 
 /**
- * @param {import('../FishHellGame.js').FishHellGame} game
+ * @description Spawns a boss for the current wave if needed
+ * @param {import('../FishHellGame.js').FishHellGame} game - The game instance
+ * @returns {void}
  */
 export function spawnBossForWaveIfNeeded(game) {
   const state = game.state;
